@@ -1,2 +1,93 @@
-# mind-path-a-tool-cant-translate-word-to-mindpath
-mind path a tool cant translate word to mindpath
+# 学径 MindPath · 智能学习导图
+
+> 输入一段**文字**或一张**图片**，自动转化为条理清晰的**思维导图**与可执行的**学习路径**。
+> 界面为苹果风格（毛玻璃、圆角、深浅色模式），**电脑端与手机端**均可使用。
+
+---
+
+## ✨ 功能特性
+
+| 功能 | 说明 |
+| --- | --- |
+| 📝 文字输入 | 粘贴课程笔记、文章、教材摘录或任意学习主题，一键生成 |
+| 🖼 图片输入 | 上传 JPG / PNG / WebP，浏览器端 OCR 自动识别图中文字（首次约下载 20MB 语言包） |
+| 🌳 思维导图 | 交互式导图：缩放 / 平移 / 点击节点展开折叠，一键导出 PNG 图片、复制 Markdown |
+| 🧭 学习路径 | 按「目标 → 基础 → 深化 → 实践 → 拓展」自动生成 5~6 个阶段，含预计天数、要点与建议；可勾选进度并保存到本机 |
+| 🤖 AI 深度解析（可选） | 配置任意 OpenAI 兼容接口（DeepSeek / OpenAI / 本地 Ollama 等），获得更精准的结果；失败自动回退本地解析 |
+| 🔒 隐私友好 | 本地解析不联网，图片与文本均不出浏览器；AI 模式的 Key 仅保存在本机 localStorage |
+
+---
+
+## 🚀 快速开始
+
+### 方式一：直接打开（推荐）
+
+双击打开 `index.html` 即可使用（无需安装、无需服务器）。
+
+> 首次使用时需联网加载 CDN 上的导图引擎与 OCR 引擎。
+
+### 方式二：本地服务器运行
+
+```bash
+# 在项目目录下执行其一
+python -m http.server 8080
+# 或
+npx serve .
+```
+
+然后浏览器访问 `http://localhost:8080`。
+
+---
+
+## 📖 使用步骤
+
+1. **输入内容**
+   - 文字模式：粘贴文字，或点击「✨ 使用示例」体验；`Ctrl / ⌘ + Enter` 快速生成。
+   - 图片模式：点击 / 拖拽上传图片 → 点击「🔍 识别图中文字（OCR）」→ 可修改识别结果。
+2. **点击「✨ 开始生成」**，自动进入结果页。
+3. **思维导图**：拖拽平移、滚轮缩放、点击节点折叠；可「导出 PNG」「复制 MD」。
+4. **学习路径**：查看各阶段任务，勾选完成项（进度自动保存），可「导出 JSON 计划」。
+
+---
+
+## 🤖 配置 AI 深度解析（可选）
+
+右上角 ⚙ 设置中开启「AI 深度解析」并填写：
+
+- **接口地址**：OpenAI 兼容格式，例如
+  - DeepSeek：`https://api.deepseek.com/v1`
+  - OpenAI：`https://api.openai.com/v1`
+  - 本地 Ollama：`http://localhost:11434/v1`（需设置 `OLLAMA_ORIGINS=*` 允许跨域）
+- **API Key**：对应平台的密钥
+- **模型名称**：如 `deepseek-chat`、`gpt-4o-mini`、`qwen-plus` 等
+
+> ⚠ 注意：接口必须允许浏览器跨域访问（CORS），否则会在浏览器中被拦截；此时工具会自动回退到本地解析，不影响使用。
+
+---
+
+## 📁 项目结构
+
+```
+mindpath/
+├── index.html          # 入口页面
+├── css/
+│   └── style.css       # Apple 风格样式（浅/深色、响应式）
+└── js/
+    ├── parser.js       # 本地智能解析引擎（文本 → 导图 + 路径）
+    ├── llm.js          # 可选 AI 大模型解析（OpenAI 兼容）
+    ├── ocr.js          # 图片文字识别（Tesseract.js）
+    └── app.js          # 主应用逻辑
+```
+
+## 🔧 技术说明
+
+- 思维导图渲染：[markmap](https://markmap.js.org/)（CDN，v0.18）
+- 图片 OCR：[Tesseract.js](https://tesseract.projectnaptha.com/)（v5，浏览器端运行）
+- 纯原生 HTML / CSS / JS，无构建步骤，无后端依赖
+- 支持深色模式（跟随系统 `prefers-color-scheme`），适配 `safe-area` 与移动端触摸
+
+## 📌 后续可扩展
+
+- 打包为 PWA（可安装到手机桌面）
+- 改造为微信小程序 / 跨端应用（如 Tauri、uni-app）
+- 增加学习笔记存储、打卡提醒、AI 答疑等模块

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f5f7">
+<meta name="description" content="学径 MindPath — 输入一段文字或一张图片，自动生成结构化思维导图与学习路径的智能学习工具，支持电脑端与手机端。">
+<title>学径 MindPath · 智能学习导图</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230a84ff'/%3E%3Cstop offset='1' stop-color='%235e5ce6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='15' fill='url(%23g)'/%3E%3Ctext x='32' y='44' font-size='32' text-anchor='middle' fill='white' font-family='sans-serif'%3E%E5%AD%A6%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css?v=5">
+</head>
+<body>
+
+<!-- ===================== 顶部导航 ===================== -->
+<header class="topbar">
+  <div class="topbar-left">
+    <button id="backBtn" class="back-btn hidden" aria-label="返回">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15,4 7,12 15,20"/></svg>
+      返回
+    </button>
+    <div class="brand">
+      <span class="brand-dot">学</span>
+      <span>学径 <em>MindPath</em></span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button id="repoOpen" class="topbar-btn" aria-label="我的仓库">📚 仓库</button>
+    <button id="sheetOpen" class="icon-btn" aria-label="设置">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="4" y1="7" x2="20" y2="7"/><circle cx="9" cy="7" r="2.2"/>
+        <line x1="4" y1="17" x2="20" y2="17"/><circle cx="15" cy="17" r="2.2"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- ===================== 输入视图 ===================== -->
+  <section id="inputView" class="view">
+    <div class="hero">
+      <span class="hero-badge">✨ 无需注册 · 开箱即用</span>
+      <h1>把知识，变成<br class="br">清晰的<span class="grad">学习地图</span></h1>
+      <p class="sub">输入一段文字或一张图片，自动提炼核心概念，生成结构化的<b>思维导图</b>与可执行的<b>学习路径</b>。本地解析无需联网，数据不出你的浏览器。</p>
+    </div>
+
+    <div class="card input-card">
+      <div class="mode-seg-wrap">
+        <div id="modeSeg" class="seg" role="tablist">
+          <button class="seg-btn active" data-mode="text" role="tab">📝 文字输入</button>
+          <button class="seg-btn" data-mode="image" role="tab">🖼 图片输入</button>
+        </div>
+      </div>
+
+      <!-- 文字模式 -->
+      <div id="textMode">
+        <div class="textarea-wrap">
+          <textarea id="textInput" class="input" placeholder="粘贴你的学习内容或主题，例如：&#10;&#10;我想学习机器学习，先了解监督学习和无监督学习的概念，然后学习线性回归、决策树等经典算法，用 sklearn 实践，最后挑战 Kaggle 项目……&#10;&#10;也可以是一整篇课程笔记、文章、教材摘录，越详细，导图越完整。"></textarea>
+        </div>
+        <div class="toolbar">
+          <div class="toolbar-btns">
+            <button id="sampleBtn" class="text-btn">✨ 使用示例</button>
+            <button id="clearBtn" class="text-btn">清空</button>
+          </div>
+          <span id="charCount" class="char-count"></span>
+        </div>
+      </div>
+
+      <!-- 图片模式 -->
+      <div id="imageMode" class="hidden">
+        <div id="dropzone" class="dropzone">
+          <input id="fileInput" type="file" accept="image/*" hidden>
+          <div class="dz-default">
+            <div class="dz-icon">🖼</div>
+            <p class="dz-title">点击上传或拖拽图片到这里</p>
+            <p class="dz-sub">支持 JPG / PNG / WebP，将自动识别图中文字并生成导图</p>
+          </div>
+          <div id="previewWrap" class="preview hidden">
+            <img id="previewImg" alt="图片预览">
+            <button id="removeImg" class="remove-img" aria-label="移除图片">✕</button>
+          </div>
+        </div>
+        <div class="ocr-area">
+          <button id="ocrBtn" class="btn-outline ocr-btn">
+            <span>🔍 识别图中文字（OCR）</span>
+          </button>
+          <div id="ocrProgress" class="ocr-progress hidden"><div id="ocrBar" class="ocr-bar"></div></div>
+          <span id="ocrLabel" class="ocr-label"></span>
+          <div id="ocrTextWrap" class="ocr-result hidden">
+            <div class="ocr-label-row"><span>识别结果（可修改后生成）</span></div>
+            <textarea id="ocrText" class="input ocr-text" placeholder="识别出的文字会出现在这里，你也可以直接手动粘贴文字内容…"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button id="generateBtn" class="btn-generate">✨ 开始生成</button>
+    <p class="generate-hint">提示：本地解析无需联网；在右上角 ⚙ 设置中可开启 AI 深度解析 · Ctrl / ⌘ + Enter 快速生成</p>
+  </section>
+
+  <!-- ===================== 结果视图 ===================== -->
+  <section id="resultView" class="view hidden">
+    <div class="result-head">
+      <div class="result-title-wrap">
+        <h2 id="resultTitle" class="result-title">—</h2>
+        <span id="resultMeta" class="result-meta"></span>
+      </div>
+      <div class="result-actions">
+        <button id="saveRepoBtn" class="mm-btn primary">📚 保存到仓库</button>
+      </div>
+    </div>
+
+    <div class="result-tabs">
+      <div id="tabSeg" class="seg" role="tablist">
+        <button class="seg-btn active" data-tab="mindmap" role="tab">🌳 思维导图</button>
+        <button class="seg-btn" data-tab="path" role="tab">🧭 学习路径</button>
+      </div>
+    </div>
+
+    <!-- 思维导图 -->
+    <div id="mindmapTab">
+      <div class="mm-toolbar">
+        <button id="btnFit" class="mm-btn" title="适应屏幕">⌖ 适应</button>
+        <button id="btnExpand" class="mm-btn" title="展开全部">＋ 展开全部</button>
+        <button id="btnCollapse" class="mm-btn" title="折叠全部">－ 折叠全部</button>
+        <span class="mm-spacer"></span>
+        <button id="btnPng" class="mm-btn primary" title="导出图片">⬇ 导出 PNG</button>
+        <button id="btnMd" class="mm-btn" title="复制 Markdown">⎘ 复制 MD</button>
+      </div>
+      <div id="mindmapWrap" class="mm-box">
+        <svg id="mindmap"></svg>
+      </div>
+      <p class="mm-hint">滚轮缩放 · 拖拽平移 · 点击节点展开 / 折叠</p>
+    </div>
+
+    <!-- 学习路径 -->
+    <div id="pathTab" class="hidden">
+      <p class="mm-hint">✏️ 点击阶段标题 / 要点 / 建议可直接编辑文字，双击思维导图节点可修改节点文字</p>
+      <div id="pathExportArea">
+        <div class="path-export-head">
+          <span id="pathExportTitle">学习路径</span>
+          <span id="pathExportDate" class="path-export-date"></span>
+        </div>
+        <div id="pathSummary" class="card summary-card"></div>
+        <div id="pathStages"></div>
+      </div>
+      <div class="path-actions">
+        <button id="btnPathPng" class="btn-outline">⬇ 导出图片</button>
+        <button id="btnJson" class="btn-outline">⬇ 导出 JSON 计划</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 仓库视图 ===================== -->
+  <section id="repoView" class="view hidden">
+    <div class="repo-head">
+      <h2>📚 我的仓库</h2>
+      <span id="repoCount" class="repo-count"></span>
+    </div>
+    <div id="repoEmpty" class="repo-empty">
+      <div class="repo-empty-icon">📭</div>
+      <p class="repo-empty-title">仓库还是空的</p>
+      <p class="repo-empty-sub">生成导图或学习路径后，点击结果页右上角「📚 保存到仓库」，<br>下次打开即可继续编辑使用，数据仅保存在本机浏览器</p>
+    </div>
+    <div id="repoList" class="repo-list"></div>
+  </section>
+</main>
+
+<footer class="footer">
+  <p>学径 MindPath · 本地解析不联网 · AI 模式需自行配置 API Key（仅保存在本机浏览器）<br>支持电脑端与手机端 · 深色模式跟随系统</p>
+</footer>
+
+<!-- ===================== 加载遮罩 ===================== -->
+<div id="loading" class="loading hidden">
+  <div class="loading-inner">
+    <div class="spinner"></div>
+    <p id="loadingText">正在分析内容…</p>
+  </div>
+</div>
+
+<!-- ===================== 设置面板 ===================== -->
+<div id="settingsSheetBackdrop" class="sheet-backdrop"></div>
+<div id="settingsSheet" class="sheet" role="dialog" aria-label="设置">
+  <div class="sheet-head">
+    <h2>设置</h2>
+    <button id="sheetClose" class="icon-btn" aria-label="关闭">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="field-row">
+      <div class="field-label">
+        <strong>AI 深度解析</strong>
+        <small>使用大模型生成更精准的导图与路径（可选）</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="aiToggle">
+        <span class="track"><span class="thumb"></span></span>
+      </label>
+    </div>
+    <div class="field">
+      <label for="endpoint">接口地址（OpenAI 兼容）</label>
+      <input id="endpoint" type="text" placeholder="https://api.deepseek.com/v1 或 https://api.openai.com/v1">
+    </div>
+    <div class="field">
+      <label for="apiKey">API Key</label>
+      <input id="apiKey" type="password" placeholder="sk-…">
+    </div>
+    <div class="field">
+      <label for="model">模型名称</label>
+      <input id="model" type="text" placeholder="deepseek-chat / gpt-4o-mini">
+    </div>
+    <p id="aiHint" class="hint hidden">🔒 Key 仅保存在本机浏览器，不上传任何服务器。<br>⚠ 需要接口允许浏览器跨域访问（CORS）。调用失败时会自动回退到本地解析，不影响使用。</p>
+  </div>
+  <div class="sheet-foot">
+    <div class="sheet-foot-row">
+      <button id="settingsCancel" class="btn-outline">取消</button>
+      <button id="settingsSave" class="btn-primary">保存设置</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 轻提示 ===================== -->
+<div id="toast" class="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.18.12/dist/browser/index.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="js/parser.js?v=5"></script>
+<script src="js/llm.js?v=5"></script>
+<script src="js/ocr.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
+</body>
+</html>
